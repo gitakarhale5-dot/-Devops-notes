@@ -1,0 +1,153 @@
+On Master /Controller  - Master (Jenkins) - No Load , -
+
+Check both Ip - # ifconfig
+
+# ping other machine  - # ping ip-address
+
+
+Master (Where jenkins installed) : 
+Java 
+Jenkins install
+check ports : 8080
+
+# firewall-cmd --list-all		=> check 8080 ports added
+
+# firewall-cmd --add-port=8080/tcp --permanent
+
+# firewall-cmd --reload
+
+------------------
+
+
+Jenkins :
+	Manage Jenkins
+	Node 
+	Add New Node
+	Name - Permananent
+	 Name - node1, 
+	 executor - 2 (allow 2 run/build pipeline ekach velen)
+	 remote root dir - /home/jenkins (path of agent)
+	 Labels : kohli (Script)
+	 Usage : as mush as posible
+	 Launch method : Agent
+	 availability : online
+	Save
+	
+	Nodes: 
+	 node1(agent/machine) List:
+	 
+	  node1 -> click
+	  
+	  
+*****Run from agent command line: (Unix) ****
+
+curl -sO http://localhost:8080/jnlpJars/agent.jar
+java -jar agent.jar -url http://localhost:8080/ -secret e43f10184f6b67f538379d907340b0ea3acf5a68c475b1c6a8ac438ce23cf3d8 -name node1 -webSocket -workDir "/home/jenkins"
+	
+Create a new file for abvoe command
+
+vim tiger - paste above command , :wq
+
+
+hi file aaplya la agent send karyachi.
+
+scp - server copy 
+
+# scp tiger jenkins@agent-ipaddress:/home/jenkins
+
+# scp tiger jenkins@172.20.10.12:/home/jenkins
+
+Bhau agent machine var ja , aani Jenkins user madhe jaun check kar.(/home/jenkins)
+tithe aaplya tiger file bhetal
+
+aata pudhe kaam agent/slave machine che kaam aahe.
+
+
+
+==============================================
+Slave : only Java , No need to Jenkins
+# java --verison
+# useradd jenkins 
+# chown -R jenkins: jenkins /home/jenkins
+
+# passwd jenkins 	=> give password jenkins user.
+
+---------------
+On agent/slave machine 
+
+tiger file madhe khalil command aahe, tyanna one by one run kara.
+
+Run first command : 
+# curl -sO http://localhost:8080/jnlpJars/agent.jar
+# curl -sO http://master-ipaddress:8080/jnlpJars/agent.jar
+
+it will download agent.jar file.
+
+------
+run this second command:
+
+# java -jar agent.jar -url http://localhost:8080/ -secret e43f10184f6b67f538379d907340b0ea3acf5a68c475b1c6a8ac438ce23cf3d8 -name node1 -webSocket -workDir "/home/jenkins"
+
+
+# java -jar agent.jar -url http://master-ipaddress:8080/ -secret e43f10184f6b67f538379d907340b0ea3acf5a68c475b1c6a8ac438ce23cf3d8 -name node1 -webSocket -workDir "/home/jenkins"
+
+Connected :
+
+Slave Done !!!!
+
+==================================
+
+
+Master var ja :
+
+Create new project : with Pipeline 
+
+
+
+pipeline {
+    agent {
+        label "kohli"
+    }
+
+    stages {
+        stage('Code') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+        stage('Code2') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+        stage('Code3') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+        stage('Code4') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+        stage('git') {
+            steps {
+                git branch: 'main', url: 'https://github.com/aarushtechnologies/java1.git'
+            }
+        }
+        stage('build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+    }
+}
+
+
+Build Project from Jenkin Dashboard 
+And monitor - who is building your project 
+Build-in-Node
+
+node1
+node2 
+node3
