@@ -1,1 +1,39 @@
+pipeline {
+    agent any
 
+    stages {
+
+        stage('Git') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/adityaghaywat-cmd/java1.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                sh '''
+                    export JENKINS_NODE_COOKIE=dontkillme
+        
+                    /opt/tomcat/bin/shutdown.sh || true
+        
+                    rm -rf /opt/tomcat/webapps/webapp
+                    rm -f /opt/tomcat/webapps/webapp.war
+        
+                    cp -r target/webapp /opt/tomcat/webapps/
+                    cp target/webapp.war /opt/tomcat/webapps/
+        
+                    /opt/tomcat/bin/startup.sh
+        
+                    sleep 5
+                '''
+            }
+        }
+    }
+}
